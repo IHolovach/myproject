@@ -17,9 +17,9 @@ var connection = mysql.createPool({
 var GLOB_LOG_STATUS = 0;
 var GLOB_LOG_USERNAME = '';
 
-console.log(GLOB_LOG_STATUS);
-
-app.use(express.static(__dirname + '/public'));                
+app.use(express.static(__dirname + '/public'));
+app.use('/', express.static(__dirname + '/public'));
+app.use('*', express.static(__dirname + '/public'));                
 app.use(morgan('dev'));                                         
 app.use(bodyParser.urlencoded({'extended':'true'}));            
 app.use(bodyParser.json());                                     
@@ -28,21 +28,16 @@ app.use(methodOverride());
 
 app.get('/login', function (req, res) {
 	if(GLOB_LOG_STATUS){
-		res.redirect(__dirname + "/public/components/dashboard.html");
+		res.redirect('/dashboard');
 	}
 });
 
 app.get('/dashboard', function (req, res) {
-	console.log(req);
-	console.log(GLOB_LOG_STATUS);
-	if(GLOB_LOG_STATUS){
-		console.log(req);
-		console.log(GLOB_LOG_STATUS);
-		res.redirect('/dashboard');
-	} else{
+	if(GLOB_LOG_STATUS == 0){
 		res.redirect('/login');
+	} else{
+		console.log('You are already here');
 	}
-   
 });
 
 app.get('/', function(req, resp){
@@ -107,6 +102,7 @@ app.post('/loginsys', function(req, resp){
 							data.user          = username;
 							data.user_id       = user_id;
 							data.user_group_id = user_group_id;
+							console.log(GLOB_LOG_STATUS);
 							resp.json(data);
 							resp.end();
 						} else{

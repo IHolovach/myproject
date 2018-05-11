@@ -10,7 +10,11 @@ Instruction to install
 - run app with command "node app.js", listen it on port 1337
 
 ----------------------------------
-username: User01
-pass: 111111
-username: Admin01
-pass: 222222
+- username: User01
+- pass: 111111
+------------------
+- username: Admin01
+- pass: 222222
+----------------------------------
+Todo:
+- stay on page or redirect to 'dashboard' if GLOB_LOG_STATUS = 1
