@@ -1,0 +1,20 @@
+{
+  "name": "myproject",
+  "version": "1.0.0",
+  "description": "LoginApp",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Iryna Holovach",
+  "license": "ISC",
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "express": "*",
+    "method-override": "^2.3.10",
+    "morgan": "^1.9.0",
+    "mysql": "*",
+    "mysql-migrations": "^1.0.6",
+    "npm": "^6.0.0"
+  }
+}
