@@ -14,6 +14,11 @@ var connection = mysql.createPool({
 	database: 'sampledb'
 });
 
+var GLOB_LOG_STATUS = 0;
+var GLOB_LOG_USERNAME = '';
+
+console.log(GLOB_LOG_STATUS);
+
 app.use(express.static(__dirname + '/public'));                
 app.use(morgan('dev'));                                         
 app.use(bodyParser.urlencoded({'extended':'true'}));            
@@ -21,8 +26,23 @@ app.use(bodyParser.json());
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); 
 app.use(methodOverride());
 
-app.get('*', function(req, res){
-  res.sendFile( __dirname + "/public/components/" + "notfound.html" );
+app.get('/login', function (req, res) {
+	if(GLOB_LOG_STATUS){
+		res.redirect(__dirname + "/public/components/dashboard.html");
+	}
+});
+
+app.get('/dashboard', function (req, res) {
+	console.log(req);
+	console.log(GLOB_LOG_STATUS);
+	if(GLOB_LOG_STATUS){
+		console.log(req);
+		console.log(GLOB_LOG_STATUS);
+		res.redirect('/dashboard');
+	} else{
+		res.redirect('/login');
+	}
+   
 });
 
 app.get('/', function(req, resp){
@@ -81,6 +101,8 @@ app.post('/loginsys', function(req, resp){
 	
 						if(checkPass === pass){
 							var data = {};
+							GLOB_LOG_STATUS    = true;
+							GLOB_LOG_USERNAME  = username;
 							data.status        = 'loggedin';
 							data.user          = username;
 							data.user_id       = user_id;
@@ -100,26 +122,18 @@ app.post('/loginsys', function(req, resp){
 	});
 });
 
-app.get('/logoutsys', function(req, resp){
-	connection.getConnection(function(error, tempCont){
-		if(!!error){
-			tempCont.release();
-			console.log('Error');
-		} else {
-			console.log('Connected!');
+app.post('/logoutsys', function(req, resp){
+	var user_status = req.body.user_status;
 
-			tempCont.query("SELECT * FROM users", function(error, rows, fields){
-				tempCont.release();
-				//callback
-				if(!!error){
-					console.log('Error in the query');
-				} else{
-					console.log('Successful query\n');
-					resp.json(rows);
-				}
-			});
-		}
-	});
+	if(user_status == 0){
+		GLOB_LOG_STATUS = false;
+		GLOB_LOG_USERNAME = '';
+		console.log(GLOB_LOG_STATUS);
+	}
+});
+
+app.get('*', function(req, res){
+	res.sendFile( __dirname + "/public/components/" + "notfound.html" );
 });
 
 app.listen(1337);

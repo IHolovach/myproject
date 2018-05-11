@@ -20,11 +20,16 @@ app.config(function($routeProvider, $locationProvider){
 		},
 		templateUrl: './components/dashboard.html',
 		controller: 'dashboardCtrl'
-	});
-	$routeProvider.when('/admin/dashboard', {
+	}).when('/admin/dashboard', {
 		templateUrl: './components/admindashboard.html',
 		controller: 'admindashboardCtrl'
-	});
+	}).when('/notfound', {
+		templateUrl: './components/notfound.html',
+		controller: 'notfoundCtrl'
+	}).otherwise({
+     	templateUrl: './components/notfound.html',
+		controller: 'notfoundCtrl'
+  	});
 
 });
 
@@ -108,6 +113,16 @@ app.controller('dashboardCtrl', function($scope, $http, $location, user){
 	$scope.logout = function(){
 		var username = $scope.user_id;
 		user.userLoggedOut();
+		var postdata = {user_status: 0};
+			$http({
+				url: '/logoutsys',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				data: JSON.stringify(postdata)
+			});
+
 		$location.path('/login');
 	};
 });
