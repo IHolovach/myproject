@@ -18,3 +18,5 @@ Instruction to install
 ----------------------------------
 Todo:
 - stay on page or redirect to 'dashboard' if GLOB_LOG_STATUS = 1
+---------------------------------
+Create 'sampledb' database
