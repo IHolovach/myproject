@@ -1,10 +1,13 @@
+html{
+     min-height: 100%;
+}
 body{
-    overflow: hidden;
+    overflow-x: hidden;
     background-image: linear-gradient(to left bottom, #22acc9, #0096dd, #007cf1, #005af6, #061ae1);
 }
 #mainContent{
-    min-width: 1366px;
-    min-height: 728px;
+/*    min-width: 1366px;*/
+/*    min-height: 728px;*/
     text-align: center;
 }
 .homePageTitle{
