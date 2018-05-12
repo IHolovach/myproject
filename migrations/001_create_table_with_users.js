@@ -1,9 +1,8 @@
 var mysql     = require('mysql');
 var cryptoJS  = require("crypto-js");
 
-var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-var userPass  = createPassSalt('111111', possible);
-var adminPass = createPassSalt('222222', possible);
+var userPass  = createPassSalt('111111');
+var adminPass = createPassSalt('222222');
 
 module.exports = { 
     "up" :  function (connection) {
@@ -26,7 +25,8 @@ module.exports = {
     "down": "DROP TABLE users"
 }
 
-function createPassSalt(pass, symbols){
+function createPassSalt(pass){
+	var symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	var salt = "";
 	for (var i = 0; i < 3; i++)
 	  salt += symbols.charAt(Math.floor(Math.random() * symbols.length));

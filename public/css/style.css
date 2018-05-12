@@ -14,6 +14,7 @@ body{
     color: #fff;
 }
 #loginForm,
+#registerForm,
 #buttons {
     width: 340px;
     margin: 50px auto;
@@ -22,14 +23,16 @@ body{
     width: 340px;
     margin: 20px auto;
 }
-#loginForm > div {
+#loginForm > div,
+#registerForm > div {
     margin-bottom: 15px;
     background: #f7f7f7;
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     padding: 30px;
     border-radius: 4px;
 }
-#loginForm h2 {
+#loginForm h2,
+#registerForm h2 {
     margin: 0 0 15px;
 }
 .form-control, .btn {
@@ -65,4 +68,11 @@ body{
     position: absolute;
     top: 10px;
     right: 160px;
+}
+.add_info{
+    cursor: pointer;
+}
+.add_info:hover{
+    cursor: pointer;
+    text-decoration: underline;
 }

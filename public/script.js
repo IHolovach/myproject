@@ -10,6 +10,9 @@ app.config(function($routeProvider, $locationProvider){
 	}).when('/login', {
 		templateUrl: './components/login.html',
 		controller: 'loginCtrl'
+	}).when('/register', {
+		templateUrl: './components/register.html',
+		controller: 'registerCtrl'
 	}).when('/dashboard', {
 		resolve: {		
 			check: function($location, user){
@@ -64,6 +67,9 @@ app.controller('homeCtrl', function($scope, $location){
 	$scope.goToLogin = function(){
 		$location.path('/login');
 	};
+	$scope.goToRegister = function(){
+		$location.path('/register');
+	};	
 });
 
 app.controller('loginCtrl', function($scope, $http, $location, $window, user){
@@ -104,6 +110,45 @@ app.controller('loginCtrl', function($scope, $http, $location, $window, user){
 				}
 			});
 		}
+	};
+	$scope.goToRegister = function(){
+		$location.path('/register');
+	};
+});
+
+app.controller('registerCtrl', function($scope, $http, $location, $window, user){
+	$scope.register = function(){
+		var username = $scope.username;
+		var password = $scope.password;
+		if(!username){
+			alert('Please provide form with username'); // there can be any validation code
+		} else if(!password){
+			alert('Please provide form with password'); // there can be any validation code
+		} else {
+			var postdata = {username: username, password: password};
+			$http({
+				url: '/registersys',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				data: JSON.stringify(postdata)
+			}).then(function(response){
+				if(response.data.status == 'userregistered'){
+					user.userLoggedIn();
+					user.setName(response.data.user); 
+					user.setUserId(response.data.user_id);
+					var user_group_id = response.data.user_group_id;
+					console.log(response);
+					$location.path('/dashboard');				
+				} else {
+					alert('Register failed\nSomething went wrong');
+				}
+			});
+		}
+	};
+	$scope.goToLogin = function(){
+		$location.path('/login');
 	};
 });
 

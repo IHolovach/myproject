@@ -40,27 +40,6 @@ app.get('/dashboard', function (req, res) {
 	}
 });
 
-app.get('/', function(req, resp){
-	connection.getConnection(function(error, tempCont){
-		if(!!error){
-			tempCont.release();
-			console.log('Error');
-		} else {
-			console.log('Connected!');
-
-			tempCont.query("SELECT * FROM users", function(error, rows, fields){
-				tempCont.release();
-				if(!!error){
-					console.log('Error in the query');
-				} else{
-					console.log('Successful query\n');
-					resp.json(rows);
-				}
-			});
-		}
-	});
-});
-
 app.post('/loginsys', function(req, resp){
 	var username = req.body.username;
 	var password = req.body.password;
@@ -118,6 +97,41 @@ app.post('/loginsys', function(req, resp){
 	});
 });
 
+app.post('/registersys', function(req, resp){
+	var username = req.body.username;
+	var password = req.body.password;
+	var db_data;
+
+	var uCredentials = createPassSalt(password);
+
+	connection.getConnection(function(error, tempCont){
+		if(!!error){
+			tempCont.release();
+			console.log('Error');
+		} else {
+			console.log('Connected!');
+
+			tempCont.query("INSERT INTO users VALUES (NULL, '"+username+"', '2', '"+uCredentials.password+"', '"+uCredentials.salt+"') ", function(error, rows, fields){
+				tempCont.release();
+				if(!!error){
+					console.log('Error in the query');
+				} else{
+					db_data  = rows;
+					console.log(db_data.insertId);
+					console.log(username+' was registered');
+
+					var data = {};
+					data.username = username;
+					data.user_id  = db_data.insertId;
+					data.status   = 'userregistered';
+					resp.json(data);
+					resp.end();
+				}
+			});
+		}
+	});
+});
+
 app.post('/logoutsys', function(req, resp){
 	var user_status = req.body.user_status;
 
@@ -131,6 +145,20 @@ app.post('/logoutsys', function(req, resp){
 app.get('*', function(req, res){
 	res.sendFile( __dirname + "/public/components/" + "notfound.html" );
 });
+
+function createPassSalt(pass){
+	var symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	var salt = "";
+	for (var i = 0; i < 3; i++)
+	  salt += symbols.charAt(Math.floor(Math.random() * symbols.length));
+
+	var password = cryptoJS.MD5(pass).toString();
+	password += salt;
+	return {
+		"password": password,
+		"salt"    : salt
+	};
+}
 
 app.listen(1337);
 
