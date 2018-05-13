@@ -1,5 +1,12 @@
 <div id="buttons">
 	Admin Dashboard
 	<div class="welcomemsg">Welcome, {{user}}</div>
+	<div class="block-wrapp">
+		<h3>System User List</h3>
+		<div ng-repeat="u in uList">
+			<p>{{u}}</p>
+		</div>
+		{{uList}}
+	</div>
 	<button class="btn btn-default btn-block logout" ng-click="logout()">Logout</button>
 </div>

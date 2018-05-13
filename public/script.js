@@ -97,6 +97,8 @@ app.controller('loginCtrl', function($scope, $http, $location, $window, user){
 					var user_group_id = response.data.user_group_id;
 					if(user_group_id == 1){
 						console.log(response);
+						$scope.uList = response.data.uList;
+						console.log(response.data.uList);
 						$location.path('/admin/dashboard');
 					} else{
 						console.log(response);

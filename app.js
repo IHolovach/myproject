@@ -5,6 +5,27 @@ var morgan         = require('morgan');
 var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
 var cryptoJS       = require("crypto-js");
+var session        = require('express-session');
+
+app.use(morgan('combined'));
+app.use(session({
+  secret: 'superSecret'
+}));
+
+app.get('/testsession', function (req, res) {
+	res.clearCookie('Test', {path: '/'}).status(200).send('Ok.');
+	if(!req.session.user_id){
+		req.session.user_id  = 1;
+		req.session.username = 'tatoo';
+		res.status(200).send(req.session);
+	} else {
+		res.status(200).send(req.session);
+	}
+
+});
+
+app.get('/login', loadUser);
+app.get('/dashboard', loadUser);
 
 var connection = mysql.createPool({
 	connectionLimit: 50,
@@ -19,20 +40,13 @@ var GLOB_LOG_USERNAME = '';
 
 app.use(express.static(__dirname + '/public'));
 app.use('/', express.static(__dirname + '/public'));
-app.use('*', express.static(__dirname + '/public'));                
-app.use(morgan('dev'));                                         
+app.use('*', express.static(__dirname + '/public'));                                                         
 app.use(bodyParser.urlencoded({'extended':'true'}));            
 app.use(bodyParser.json());                                     
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); 
 app.use(methodOverride());
 
-app.get('/login', function (req, res) {
-	if(GLOB_LOG_STATUS){
-		res.redirect('/dashboard');
-	}
-});
-
-app.get('/dashboard', function (req, res) {
+app.get('/admin/dashboard', function (req, res) {
 	if(GLOB_LOG_STATUS == 0){
 		res.redirect('/login');
 	} else{
@@ -64,11 +78,17 @@ app.post('/loginsys', function(req, resp){
 						resp.json(data);
 						resp.end();
 					} else {
-						var user_id        = db_data['0']['id'];
-						var user_group_id  = db_data['0']['user_group_id'];
-						var pass           = db_data['0']['pass'];
-						var salt           = db_data['0']['salt'];
-						username           = db_data['0']['username'];
+						var user_id               = db_data['0']['id'];
+						var user_group_id         = db_data['0']['user_group_id'];
+						var pass                  = db_data['0']['pass'];
+						var salt                  = db_data['0']['salt'];
+						username                  = db_data['0']['username'];
+
+						req.session.user_id       = user_id;
+						req.session.user_group_id = user_group_id;
+						req.session.username      = username;
+
+						console.log(req.session.user_id);
 	
 						var checkPass = cryptoJS.MD5(password).toString()
 						checkPass += salt;
@@ -81,7 +101,32 @@ app.post('/loginsys', function(req, resp){
 							data.user          = username;
 							data.user_id       = user_id;
 							data.user_group_id = user_group_id;
+							data.uList         = '';
 							console.log(GLOB_LOG_STATUS);
+
+							if(user_group_id == 1){
+								tempCont.query("SELECT username, user_group_id FROM users", function(error, rows, fields){
+									var data = {};
+									GLOB_LOG_STATUS    = true;
+									GLOB_LOG_USERNAME  = username;
+									data.status        = 'loggedin';
+									data.user          = username;
+									data.user_id       = user_id;
+									data.user_group_id = user_group_id;
+									data.uList         = '';
+									var users_info = JSON.stringify(rows);
+									data.uList = JSON.parse(users_info);
+									var listObj = {}; 
+
+									data.uList.map(function (value, label) {
+									    listObj[label] = value;
+									}); 
+									console.log(listObj);
+
+									resp.json(data);
+									resp.end();
+								});
+							}
 							resp.json(data);
 							resp.end();
 						} else{
@@ -123,6 +168,11 @@ app.post('/registersys', function(req, resp){
 					var data = {};
 					data.username = username;
 					data.user_id  = db_data.insertId;
+
+					req.session.user_id       = user_id;
+					req.session.user_group_id = '2';
+					req.session.username      = username;
+
 					data.status   = 'userregistered';
 					resp.json(data);
 					resp.end();
@@ -138,13 +188,13 @@ app.post('/logoutsys', function(req, resp){
 	if(user_status == 0){
 		GLOB_LOG_STATUS = false;
 		GLOB_LOG_USERNAME = '';
-		console.log(GLOB_LOG_STATUS);
+		req.session.user_id = null;
 	}
 });
 
-app.get('*', function(req, res){
-	res.sendFile( __dirname + "/public/components/" + "notfound.html" );
-});
+// app.get('*', function(req, res){
+// 	res.sendFile( __dirname + "/public/components/" + "notfound.html" );
+// });
 
 function createPassSalt(pass){
 	var symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -160,5 +210,18 @@ function createPassSalt(pass){
 	};
 }
 
-app.listen(1337);
+function loadUser(req, res, next) {
+  if (req.session.user_id == null) {
+  	return res.redirect('/login');
+  }
+  if ((req.session.user_group_id == 2) && (req.session.user_id != null)) {
+    return res.redirect('/dashboard');
+  } else {
+    return res.redirect('/admin/dashboard');
+  }
+}
+
+app.listen(1337, function(){
+	console.log('Listening on port 1337');
+});
 
